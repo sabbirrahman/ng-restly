@@ -239,7 +239,7 @@ To get the best out of this library you should follow the bellow API design guid
 #### REST API
 
 ##### Simple
-| EndPoint    | Method  | Purpos                  |
+| EndPoint    | Method  | Purpose                 |
 | ------------|---------| ------------------------|
 | /posts      | GET     | Get a List of Posts     |
 | /posts/:id  | GET     | Get a Single Post       |
@@ -248,7 +248,7 @@ To get the best out of this library you should follow the bellow API design guid
 | /posts/:id  | DELETE  | Delete a Post           |
 
 ##### Nested
-| EndPoint                 | Method  | Purpos                     |
+| EndPoint                 | Method  | Purpose                    |
 | -------------------------|---------| ---------------------------|
 | /posts/:id/comments      | GET     | Get a List of Comments     |
 | /posts/:id/comments/:id  | GET     | Get a Single Comment       |
@@ -259,13 +259,13 @@ To get the best out of this library you should follow the bellow API design guid
 #### Util API
 
 ##### Simple
-| EndPoint      | Method  | Purpos          |
+| EndPoint      | Method  | Purpose         |
 | --------------|---------| ----------------|
 | /posts/search | GET     | Search Posts    |
 | /posts/count  | GET     | Get Post Count  |
 
 ##### Nested
-| EndPoint                    | Method  | Purpos            |
+| EndPoint                    | Method  | Purpose           |
 | ----------------------------|---------| ------------------|
 | /posts/:id/comments/search  | GET     | Search Comments   |
 | /posts/:id/comments/count   | GET     | Get Comment Count |
