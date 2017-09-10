@@ -13,6 +13,7 @@ const backendResponse = (c, b) => {
 let backend: MockBackend;
 let service: ResourceService;
 
+const XHR_METHODS = ['GET', 'POST', 'PUT', 'DELETE'];
 const arrResponse = [{ id: 123, text: 'abc' }, { id: 321, text: 'def' }];
 const singleResponse = { id: 123, text: 'abc' };
 
@@ -55,6 +56,8 @@ describe('ResourceService', () => {
       service.authenticate();
       expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
       BaseResourceConfig.auth = true;
+      service.authenticate();
+      expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
       localStorage.setItem('accessToken', 'fake.jwt.token');
       service.authenticate();
       expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeTruthy();
@@ -93,6 +96,7 @@ describe('ResourceService', () => {
     describe('query method which should return an array', () => {
       it('for basic query request', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('GET');
           expect(c.request.url).toBe('v3/posts');
           backendResponse(c, arrResponse);
         });
@@ -102,6 +106,7 @@ describe('ResourceService', () => {
 
       it('for request with query parameters and url suffix', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('GET');
           expect(c.request.url).toBe('v3/posts/123/comments/mock?pageNo=1');
           backendResponse(c, arrResponse);
         });
@@ -118,6 +123,7 @@ describe('ResourceService', () => {
     describe('get method which should return a single object', () => {
       it('for basic query request', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('GET');
           expect(c.request.url).toBe('v3/posts/123');
           backendResponse(c, singleResponse);
         });
@@ -130,6 +136,7 @@ describe('ResourceService', () => {
 
       it('for request with query parameters and url suffix', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('GET');
           expect(c.request.url).toBe('v3/posts/123/mock?pageNo=1');
           backendResponse(c, singleResponse);
         });
@@ -143,8 +150,9 @@ describe('ResourceService', () => {
     });
 
     describe('save method which should send data to be created to server', () => {
-      it('for basic post request', () => {
+      it('for basic save request', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('POST');
           expect(JSON.parse(c.request._body).text).toBe('abcdef');
           expect(c.request.url).toBe('v3/posts');
         });
@@ -154,6 +162,7 @@ describe('ResourceService', () => {
 
       it('for request with query parameters and url suffix', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('POST');
           expect(JSON.parse(c.request._body).text).toBe('ghijkl');
           expect(c.request.url).toBe('v3/posts/123/mock?pageNo=1');
           backendResponse(c, singleResponse);
@@ -165,23 +174,47 @@ describe('ResourceService', () => {
     });
 
     describe('update method which should send data to be updated to server', () => {
-      it('for basic post request', () => {
+      it('for basic update request', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('PUT');
           expect(JSON.parse(c.request._body).text).toBe('abcdef');
           expect(c.request.url).toBe('v3/posts/123');
         });
         service.url = 'v3/posts/:id';
-        service.update({ text: 'abcdef' }, { id: 123 }, ).subscribe();
+        service.update({ text: 'abcdef' }, { id: 123 }).subscribe();
       });
 
       it('for request with query parameters and url suffix', () => {
         backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('PUT');
           expect(JSON.parse(c.request._body).text).toBe('ghijkl');
           expect(c.request.url).toBe('v3/posts/123/mock?pageNo=1');
           backendResponse(c, singleResponse);
         });
         service.url = 'v3/posts/:id';
         service.update({ text: 'ghijkl' }, { id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
+          .subscribe();
+      });
+    });
+
+    describe('delete method which should delete a data', () => {
+      it('for basic delete request', () => {
+        backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('DELETE');
+          expect(c.request.url).toBe('v3/posts/123');
+        });
+        service.url = 'v3/posts/:id';
+        service.delete({ id: 123 }).subscribe();
+      });
+
+      it('for request with query parameters and url suffix', () => {
+        backend.connections.subscribe(c => {
+          expect(XHR_METHODS[c.request.method]).toBe('DELETE');
+          expect(c.request.url).toBe('v3/posts/123/mock?pageNo=1');
+          backendResponse(c, singleResponse);
+        });
+        service.url = 'v3/posts/:id';
+        service.delete({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
           .subscribe();
       });
     });

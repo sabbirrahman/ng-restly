@@ -57,7 +57,10 @@ export class ResourceService implements ResourceInterface {
     return this.http.put(this.getUrl(ids, config), JSON.stringify(data), reqOpts);
   }
 
-  delete() {}
+  delete(ids: any, config: ResourceConfigInterface = {}): Observable<any> {
+    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
+    return this.http.delete(this.getUrl(ids, config), reqOpts);
+  }
 
   makeUrl(obj) {
     let url = this.baseUrl;
