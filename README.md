@@ -8,7 +8,7 @@ Did you miss the ngResource service from angular1.x in angular2+? Then you have 
 
 ## How To
 
-1. Import ResourceModule into you app's root component.
+1. Import ResourceModule into you app's root module.
 ```typescript
 import { ResourceModule } from '@srlib/ng-resource';
 
@@ -40,7 +40,7 @@ import { PostService } from './post.service';
 
 export class PostComponent implements OnInit {
   constructor(private postService: PostService) {}
-  post: any; // Best Practice: Create and use a Interface as type
+  post: any; // Best Practice: Create and use an Interface as type (ie: PostInterface)
   ngOnInit() {
     this.postService
         .get({ id: 123 })
@@ -49,11 +49,32 @@ export class PostComponent implements OnInit {
 }
 ```
 
+## Table of Contents
+* [Documentation](#documentation)
+  * [Properties](#properties)
+    * [url](#url-string)
+    * [resourceConfig](#resourceconfig-resourceconfiginterface)
+  * [Resource Methods](#resource-methods)
+    * [query](#queryobj-any-config-resourceconfiginterface-observableany)
+    * [get](#getobj-any-config-resourceconfiginterface-observableany)
+    * [save](#savedata-any-obj-any-config-resourceconfiginterface-observableany)
+    * [update](#updatedata-any-obj-any-config-resourceconfiginterface-observableany)
+    * [delete](#deleteobj-any-config-resourceconfiginterface-observableany)
+  * [Bonus Methods](#bonus-methods)
+    * [search](#searchconfig-resourceconfiginterface-observableany)
+    * [count](#countconfig-resourceconfiginterface-observableany)
+* [Custom Methods](#custom-methods)
+* [Global Config](#global-config)
+* [API Design Guide](#api-design-guide)
+  * [REST API](#rest-api)
+  * [Util API](#util-api)
+* [Development & Contribution](#development--contribution)
+
 ## Documentation
 
 ### Properties
 
-#### `url: string`  
+#### `url: string;`  
 Sets the baseUrl for the service  
 Example:
 ```typescript
@@ -63,7 +84,7 @@ this.url = 'http://api.example.com/posts/:id/comments/:commentId';
 ```
 Here `:id` and `:commentId` is the name of your url parameters which will be used later (See Bellow).
 
-#### `resourceConfig: ResourceConfigInterface`  
+#### `resourceConfig: ResourceConfigInterface;`  
 Configuration object for your resource service  
 ResourceConfigInterface:  
 ```typescript
@@ -82,6 +103,7 @@ interface ResourceConfigInterface {
 * `urlSuffix`: If you need to add a suffix to the url
 
 ### Resource Methods
+---
 
 #### `query(obj?: any, config?: ResourceConfigInterface): Observable<any>;`  
 query method gets a list of data from your REST API using `GET` method.  
@@ -159,6 +181,7 @@ this.commentService.delete({ id: 123, commentId: 4 }).subscribe();
 ```
 
 ### Bonus Methods
+---
 
 #### `search(config?: ResourceConfigInterface): Observable<any>;`  
 search method append `/search` to your baseUrl and get search result from your REST API using `GET` method.  
@@ -182,6 +205,35 @@ this.postService.count().subscribe();
 ```
 Will send a `GET` request to `/posts/count`
 
+## Custom Methods
+You can define your own custom methods in your service class. Here is an example but you can define custom method any way you want as long as it satisfies your needs.
+```typescript
+@Injectable()
+export class PostService extends ResourceService {
+  constructor(protected http: Http) {
+    this.url = 'http://api.example.com/posts/:id';
+    super(http);
+  }
+
+  getPostsWithComments() {
+    /*
+      Assume you have an endpoint that returns all the posts with their the comments
+      Change the url temporarily to that endpoint
+    */
+    this.url = 'http://api.example.com/posts-with-comments';
+    /*
+      Use the method your api require using super from super class ResourceService
+      Don't return it just yet, store it in a variable
+    */
+    const ret = super.query();
+    // Change the url back to default baseUrl
+    this.url = 'http://api.example.com/posts/:id';
+    // Now Return
+    return ret;
+  }
+}
+```
+
 ## Global Config
 
 You can set `ResourceConfig` globally using `BaseResourceConfig`. Just import and edit the `BaseResourceConfig` in your root component.
@@ -191,6 +243,43 @@ import { BaseResourceConfig } from '@srlib/ng-resource';
 BaseResourceConfig.auth = true;
 BaseResourceConfig.tokenPropertyName = 'token';
 ```
+
+## API Design Guide
+To get the best out of this library you should follow the bellow API design guide.
+
+#### REST API
+
+##### Simple
+| EndPoint    | Method  | Purpos                  |
+| ------------|---------| ------------------------|
+| /posts      | GET     | Get a List of Posts     |
+| /posts/:id  | GET     | Get a Single Post       |
+| /posts      | POST    | Create a Post           |
+| /posts/:id  | PUT     | Update an Existing Post |
+| /posts/:id  | DELETE  | Delete a Post           |
+
+##### Nested
+| EndPoint                 | Method  | Purpos                     |
+| -------------------------|---------| ---------------------------|
+| /posts/:id/comments      | GET     | Get a List of Comments     |
+| /posts/:id/comments/:id  | GET     | Get a Single Comment       |
+| /posts/:id/comments      | POST    | Create a Comment           |
+| /posts/:id/comments/:id  | PUT     | Update an Existing Comment |
+| /posts/:id/commnets/:id  | DELETE  | Delete a Comment           |
+
+#### Util API
+
+##### Simple
+| EndPoint      | Method  | Purpos          |
+| --------------|---------| ----------------|
+| /posts/search | GET     | Search Posts    |
+| /posts/count  | GET     | Get Post Count  |
+
+##### Nested
+| EndPoint                    | Method  | Purpos            |
+| ----------------------------|---------| ------------------|
+| /posts/:id/comments/search  | GET     | Search Comments   |
+| /posts/:id/comments/count   | GET     | Get Comment Count |
 
 ## Development & Contribution
 
