@@ -8,18 +8,7 @@ Did you miss the ngResource service from angular1.x in angular2+? Then you have 
 
 ## How To
 
-1. Import ResourceModule into you app's root module.
-```typescript
-import { ResourceModule } from '@srlib/ng-resource';
-
-@NgModule({
-  bootstrap: [ App ],
-  imports: [ ResourceModule ]
-})
-export class AppModule {}
-```
-
-2. Create a service and extend it from ResourceService
+1. Create a service and extend it from ResourceService
 ```typescript
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
@@ -34,7 +23,7 @@ export class PostService extends ResourceService {
 }
 ```
 
-3. Inject your service wherever you would like to take the benefits of ng-resource
+2. Inject your service wherever you would like to take the benefits of ng-resource
 ```typescript
 import { PostService } from './post.service';
 
