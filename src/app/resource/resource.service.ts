@@ -53,6 +53,21 @@ export class ResourceService implements ResourceInterface {
 
   delete() {}
 
+  makeUrl(obj) {
+    let url = this.baseUrl;
+    const params = url.match(/:\w+/g);
+    if (!params) { return url; }
+
+    params.forEach(param => {
+      const key = param.substring(1, param.length);
+      url = obj.hasOwnProperty(key) ?
+            url.replace(param, obj[key]) :
+            url.replace('/' + param, '');
+    });
+
+    return url;
+  }
+
   makeQueryString(obj) {
     return Object
       .keys(obj)

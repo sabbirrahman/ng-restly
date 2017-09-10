@@ -50,6 +50,19 @@ describe('ResourceService', () => {
     })
   );
 
+  it('should take a base url and create REST method specific url',
+    inject([ResourceService], (service: ResourceService) => {
+      service.url = 'v3/api/posts';
+      expect(service.makeUrl({})).toBe('v3/api/posts');
+      service.url = 'v3/api/posts/:id';
+      expect(service.makeUrl({})).toBe('v3/api/posts');
+      expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123');
+      service.url = 'v3/api/posts/:id/comments/:commentId';
+      expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123/comments');
+      expect(service.makeUrl({ id: 123, commentId: 321 })).toBe('v3/api/posts/123/comments/321');
+    })
+  );
+
   it('should make a query string from given object',
     inject([ResourceService], (service: ResourceService) => {
       const obj = {
