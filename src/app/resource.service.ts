@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 // Interfaces
-import { ResourceInterface, ResourceConfigInterface } from './resource.interface';
+import { ResourceServiceInterface, ResourceConfigInterface } from './resource.interface';
 
 export const BaseResourceConfig: ResourceConfigInterface = {
   requestOptions: new RequestOptions({
@@ -19,13 +19,17 @@ export const BaseResourceConfig: ResourceConfigInterface = {
 };
 
 @Injectable()
-export class ResourceService implements ResourceInterface {
+export class ResourceService implements ResourceServiceInterface {
   resourceConfig = BaseResourceConfig;
   private baseUrl: string;
 
   constructor(
     protected http: Http
-  ) { }
+  ) {
+    if (BaseResourceConfig.auth) {
+      this.authenticate();
+    }
+  }
 
   set url(url: string) { this.baseUrl = url; }
   get url() { return this.baseUrl; }
@@ -62,13 +66,13 @@ export class ResourceService implements ResourceInterface {
     return this.http.delete(this.getUrl(ids, config), reqOpts);
   }
 
-  count(config: ResourceConfigInterface = {}): Observable<any> {
-    config.urlSuffix = '/count';
+  search(config: ResourceConfigInterface = {}): Observable<any> {
+    config.urlSuffix = '/search';
     return this.query({}, config);
   }
 
-  search(config: ResourceConfigInterface = {}): Observable<any> {
-    config.urlSuffix = '/search';
+  count(config: ResourceConfigInterface = {}): Observable<any> {
+    config.urlSuffix = '/count';
     return this.query({}, config);
   }
 

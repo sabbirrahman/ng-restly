@@ -11,10 +11,12 @@ export interface ResourceConfigInterface {
   urlSuffix?: string;
 }
 
-export interface ResourceInterface {
+export interface ResourceServiceInterface {
   query(obj: any, config: ResourceConfigInterface): Observable<any>;
   get(obj: any, config: ResourceConfigInterface): Observable<any>;
   save(data: any, obj: any, config: ResourceConfigInterface): Observable<any>;
   update(data: any, obj: any, config: ResourceConfigInterface): Observable<any>;
   delete(obj: any, config: ResourceConfigInterface): Observable<any>;
+  search(config: ResourceConfigInterface): Observable<any>;
+  count(config: ResourceConfigInterface): Observable<any>;
 }

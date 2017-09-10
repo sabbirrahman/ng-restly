@@ -1,2 +1,3 @@
-export * from  './src/app/resource/resource.module';
-export * from  './src/app/resource/resource.service';
+export * from  './src/app/resource.module';
+export * from  './src/app/resource.service';
+export * from  './src/app/resource.interface';

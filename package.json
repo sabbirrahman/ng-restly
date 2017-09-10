@@ -1,6 +1,6 @@
 {
   "name": "@srlib/ng-resource",
-  "version": "0.0.0",
+  "version": "1.0.0-rc.0",
   "description": "Resource (REST) Service for Angular (2+)",
   "keywords": [
     "angular",
