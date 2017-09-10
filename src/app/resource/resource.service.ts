@@ -4,14 +4,8 @@ import { Injectable } from '@angular/core';
 // RxJS
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-// Interface
-import { ResourceInterface } from './resource.interface';
-
-export interface ResourceConfigInterface {
-  requestOptions: RequestOptions;
-  auth: boolean;
-  tokenPropertyName: string;
-}
+// Interfaces
+import { ResourceInterface, ResourceConfigInterface } from './resource.interface';
 
 export const BaseResourceConfig: ResourceConfigInterface = {
   requestOptions: new RequestOptions({
@@ -43,7 +37,14 @@ export class ResourceService implements ResourceInterface {
     }
   }
 
-  query() {}
+  query(ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
+    let url = this.makeUrl(ids);
+    url += config.hasOwnProperty('urlSuffix') ? config.urlSuffix : '';
+    url += config.hasOwnProperty('params') ? this.makeQueryString(config['params']) : '';
+    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
+    return this.http.get(url, reqOpts)
+                    .map((res: Response) => res.json());
+  }
 
   get() {}
 

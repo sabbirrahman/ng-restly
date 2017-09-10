@@ -1,10 +1,20 @@
 // Imports from @angular
-import { BaseRequestOptions, RequestOptions } from '@angular/http';
-import { TestBed, inject } from '@angular/core/testing';
+import { BaseRequestOptions, RequestOptions, ResponseOptions } from '@angular/http';
+import { TestBed, inject, fakeAsync, tick } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
 // The Test Service
 import { ResourceService, BaseResourceConfig } from './resource.service';
+
+const backendResponse = (c, b) => {
+  return c.mockRespond(new Response(<ResponseOptions>{ body: JSON.stringify(b) }));
+}
+
+let backend: MockBackend;
+let service: ResourceService;
+
+const arrResponse = [{ id: 123, text: 'abc' }, { id: 321, text: 'def' }];
+const singleResponse = { id: 123, text: 'abc' };
 
 describe('ResourceService', () => {
   beforeEach(() => {
@@ -12,14 +22,15 @@ describe('ResourceService', () => {
       providers: [
         BaseRequestOptions,
         ResourceService,
-        MockBackend,
-        {
+        MockBackend, {
           provide: Http,
           useFactory: (backend, options) => new Http(backend, options),
           deps: [MockBackend, BaseRequestOptions]
         }
       ]
     });
+    backend = TestBed.get(MockBackend);
+    service = TestBed.get(ResourceService);
   });
 
   it('should have the REST methods (query, get, save, update & delete)',
@@ -32,7 +43,7 @@ describe('ResourceService', () => {
     })
   );
 
-  it('should set and get private baseUrl property',
+  it('should set and get private property baseUrl',
     inject([ResourceService], (service: ResourceService) => {
       service.url = 'http://api.example.com/post/:id';
       expect(service.url).toBe('http://api.example.com/post/:id');
@@ -44,9 +55,10 @@ describe('ResourceService', () => {
       service.authenticate();
       expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
       BaseResourceConfig.auth = true;
-      localStorage.setItem('accessToken', 'fakejwttoken');
+      localStorage.setItem('accessToken', 'fake.jwt.token');
       service.authenticate();
       expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeTruthy();
+      localStorage.removeItem('accessToken');
     })
   );
 
@@ -76,4 +88,32 @@ describe('ResourceService', () => {
       expect(queryString).toBe('?limit=10&pageNumber=1&keywords=android,iOS,Windows');
     })
   );
+
+  describe('should use the REST methods including', () => {
+    describe('query method which should return an array', () => {
+      it('for basic query request', () => {
+        backend.connections.subscribe(c => {
+          expect(c.request.url).toBe('v3/posts');
+          backendResponse(c, arrResponse);
+        });
+        service.url = 'v3/posts/:id';
+        service.query().subscribe();
+      });
+
+      it('for request with query parameters and url suffix', () => {
+        backend.connections.subscribe(c => {
+          expect(c.request.url).toBe('v3/posts/123/comments/mock?pageNo=1');
+          backendResponse(c, arrResponse);
+        });
+        service.url = 'v3/posts/:id/comments/:commentId';
+        service.query({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} }).subscribe((res) => {
+          expect(res.length).toBe(2);
+          expect(res[0].id).toBe(123);
+          expect(res[1].text).toBe('def');
+        });
+      });
+    });
+
+  });
+
 });
