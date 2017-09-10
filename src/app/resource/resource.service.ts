@@ -53,4 +53,19 @@ export class ResourceService implements ResourceInterface {
 
   delete() {}
 
+  makeQueryString(obj) {
+    return Object
+      .keys(obj)
+      .reduce((prev, curr) => {
+        return obj[curr] ?
+          Array.isArray(obj[curr]) && obj[curr].length > 0 ?
+            `${prev}&${encodeURIComponent(curr)}=${obj[curr].join(',')}`
+          : !Array.isArray(obj[curr]) ?
+            `${prev}&${encodeURIComponent(curr)}=${encodeURIComponent(obj[curr])}`
+          : prev
+        : prev;
+      }, '?')
+      .replace('?&', '?');
+  }
+
 }

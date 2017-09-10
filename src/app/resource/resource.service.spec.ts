@@ -49,4 +49,18 @@ describe('ResourceService', () => {
       expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeTruthy();
     })
   );
+
+  it('should make a query string from given object',
+    inject([ResourceService], (service: ResourceService) => {
+      const obj = {
+        limit: 10,
+        pageNumber: 1,
+        keywords: ['android', 'iOS', 'Windows'],
+        ignore: '',
+        list: []
+      }
+      const queryString = service.makeQueryString(obj);
+      expect(queryString).toBe('?limit=10&pageNumber=1&keywords=android,iOS,Windows');
+    })
+  );
 });
