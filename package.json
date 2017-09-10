@@ -20,8 +20,9 @@
     "start": "ng serve --port 7001 --hmr --open",
     "build": "ng build --prod --no-source",
     "test": "ng test --code-coverage",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "lint": "ng lint --type-check",
+    "e2e": "ng e2e",
+    "pkgr": "ng-packagr -p ng-package.json"
   },
   "private": false,
   "peerDependencies": {

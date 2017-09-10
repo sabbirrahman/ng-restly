@@ -8,7 +8,7 @@ import { ResourceService, BaseResourceConfig } from './resource.service';
 
 const backendResponse = (c, b) => {
   return c.mockRespond(new Response(<ResponseOptions>{ body: JSON.stringify(b) }));
-}
+};
 
 let backend: MockBackend;
 let service: ResourceService;
@@ -25,7 +25,7 @@ describe('ResourceService', () => {
         ResourceService,
         MockBackend, {
           provide: Http,
-          useFactory: (backend, options) => new Http(backend, options),
+          useFactory: (mockBackend, options) => new Http(mockBackend, options),
           deps: [MockBackend, BaseRequestOptions]
         }
       ]
@@ -34,63 +34,53 @@ describe('ResourceService', () => {
     service = TestBed.get(ResourceService);
   });
 
-  it('should have the REST methods (query, get, save, update & delete)',
-    inject([ResourceService], (resource) => {
-      expect(resource.query).toBeDefined();
-      expect(resource.get).toBeDefined();
-      expect(resource.save).toBeDefined();
-      expect(resource.update).toBeDefined();
-      expect(resource.delete).toBeDefined();
-    })
-  );
+  it('should have the REST methods (query, get, save, update & delete)', () => {
+    expect(service.query).toBeDefined();
+    expect(service.get).toBeDefined();
+    expect(service.save).toBeDefined();
+    expect(service.update).toBeDefined();
+    expect(service.delete).toBeDefined();
+  });
 
-  it('should set and get private property baseUrl',
-    inject([ResourceService], (service: ResourceService) => {
-      service.url = 'http://api.example.com/post/:id';
-      expect(service.url).toBe('http://api.example.com/post/:id');
-    })
-  );
+  it('should set and get private property baseUrl', () => {
+    service.url = 'http://api.example.com/post/:id';
+    expect(service.url).toBe('http://api.example.com/post/:id');
+  });
 
-  it('should add x-access-token header if authentication is true and jwt token exist in localStorage',
-    inject([ResourceService], (service: ResourceService) => {
-      service.authenticate();
-      expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
-      BaseResourceConfig.auth = true;
-      service.authenticate();
-      expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
-      localStorage.setItem('accessToken', 'fake.jwt.token');
-      service.authenticate();
-      expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeTruthy();
-      localStorage.removeItem('accessToken');
-    })
-  );
+  it('should add x-access-token header if authentication is true and jwt token exist in localStorage', () => {
+    service.authenticate();
+    expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
+    BaseResourceConfig.auth = true;
+    service.authenticate();
+    expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeFalsy();
+    localStorage.setItem('accessToken', 'fake.jwt.token');
+    service.authenticate();
+    expect(service.resourceConfig.requestOptions.headers.has('x-access-token')).toBeTruthy();
+    localStorage.removeItem('accessToken');
+  });
 
-  it('should take a base url and create REST method specific url',
-    inject([ResourceService], (service: ResourceService) => {
-      service.url = 'v3/api/posts';
-      expect(service.makeUrl({})).toBe('v3/api/posts');
-      service.url = 'v3/api/posts/:id';
-      expect(service.makeUrl({})).toBe('v3/api/posts');
-      expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123');
-      service.url = 'v3/api/posts/:id/comments/:commentId';
-      expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123/comments');
-      expect(service.makeUrl({ id: 123, commentId: 321 })).toBe('v3/api/posts/123/comments/321');
-    })
-  );
+  it('should take a base url and create REST method specific url', () => {
+    service.url = 'v3/api/posts';
+    expect(service.makeUrl({})).toBe('v3/api/posts');
+    service.url = 'v3/api/posts/:id';
+    expect(service.makeUrl({})).toBe('v3/api/posts');
+    expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123');
+    service.url = 'v3/api/posts/:id/comments/:commentId';
+    expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123/comments');
+    expect(service.makeUrl({ id: 123, commentId: 321 })).toBe('v3/api/posts/123/comments/321');
+  });
 
-  it('should make a query string from given object',
-    inject([ResourceService], (service: ResourceService) => {
-      const obj = {
-        limit: 10,
-        pageNumber: 1,
-        keywords: ['android', 'iOS', 'Windows'],
-        ignore: '',
-        list: []
-      }
-      const queryString = service.makeQueryString(obj);
-      expect(queryString).toBe('?limit=10&pageNumber=1&keywords=android,iOS,Windows');
-    })
-  );
+  it('should make a query string from given object', () => {
+    const obj = {
+      limit: 10,
+      pageNumber: 1,
+      keywords: ['android', 'iOS', 'Windows'],
+      ignore: '',
+      list: []
+    };
+    const queryString = service.makeQueryString(obj);
+    expect(queryString).toBe('?limit=10&pageNumber=1&keywords=android,iOS,Windows');
+  });
 
   describe('should use the REST methods including', () => {
     describe('query method which should return an array', () => {
