@@ -218,7 +218,51 @@ describe('ResourceService', () => {
           .subscribe();
       });
     });
+  });
 
+  describe('search method should provide easy searching', () => {
+    it('for basic delete request', () => {
+      backend.connections.subscribe(c => {
+        expect(XHR_METHODS[c.request.method]).toBe('GET');
+        expect(c.request.url).toBe('v3/posts/search');
+      });
+      service.url = 'v3/posts/:id';
+      service.search().subscribe();
+    });
+
+    it('for request with query parameters and url suffix', () => {
+      backend.connections.subscribe(c => {
+        expect(XHR_METHODS[c.request.method]).toBe('GET');
+        expect(c.request.url).toBe('v3/posts/search?pageNo=1');
+        backendResponse(c, singleResponse);
+      });
+      service.url = 'v3/posts/:id';
+      service.search({ params: { pageNo: 1} })
+        .subscribe();
+    });
+  });
+
+  describe('count method should data count', () => {
+    it('for basic delete request', () => {
+      backend.connections.subscribe(c => {
+        expect(XHR_METHODS[c.request.method]).toBe('GET');
+        expect(c.request.url).toBe('v3/posts/count');
+        backendResponse(c, 100);
+      });
+      service.url = 'v3/posts/:id';
+      service.count().subscribe(res => expect(res).toBe(100));
+    });
+
+    it('for request with query parameters and url suffix', () => {
+      backend.connections.subscribe(c => {
+        expect(XHR_METHODS[c.request.method]).toBe('GET');
+        expect(c.request.url).toBe('v3/posts/count?pageNo=1');
+        backendResponse(c, 1200);
+      });
+      service.url = 'v3/posts/:id';
+      service.count({ params: { pageNo: 1} })
+        .subscribe(res => expect(res).toBe(1200));
+    });
   });
 
 });

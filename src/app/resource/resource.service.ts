@@ -62,6 +62,16 @@ export class ResourceService implements ResourceInterface {
     return this.http.delete(this.getUrl(ids, config), reqOpts);
   }
 
+  count(config: ResourceConfigInterface = {}): Observable<any> {
+    config.urlSuffix = '/count';
+    return this.query({}, config);
+  }
+
+  search(config: ResourceConfigInterface = {}): Observable<any> {
+    config.urlSuffix = '/search';
+    return this.query({}, config);
+  }
+
   makeUrl(obj) {
     let url = this.baseUrl;
     const params = url.match(/:\w+/g);
