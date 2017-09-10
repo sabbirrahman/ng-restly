@@ -1,4 +1,4 @@
-export interface Resource {
+export interface ResourceInterface {
   query();
   get();
   save();
