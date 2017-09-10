@@ -142,7 +142,7 @@ describe('ResourceService', () => {
       });
     });
 
-    describe('save method which should send data to server', () => {
+    describe('save method which should send data to be created to server', () => {
       it('for basic post request', () => {
         backend.connections.subscribe(c => {
           expect(JSON.parse(c.request._body).text).toBe('abcdef');
@@ -160,6 +160,28 @@ describe('ResourceService', () => {
         });
         service.url = 'v3/posts/:id';
         service.save({ text: 'ghijkl' }, { id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
+          .subscribe();
+      });
+    });
+
+    describe('update method which should send data to be updated to server', () => {
+      it('for basic post request', () => {
+        backend.connections.subscribe(c => {
+          expect(JSON.parse(c.request._body).text).toBe('abcdef');
+          expect(c.request.url).toBe('v3/posts/123');
+        });
+        service.url = 'v3/posts/:id';
+        service.update({ text: 'abcdef' }, { id: 123 }, ).subscribe();
+      });
+
+      it('for request with query parameters and url suffix', () => {
+        backend.connections.subscribe(c => {
+          expect(JSON.parse(c.request._body).text).toBe('ghijkl');
+          expect(c.request.url).toBe('v3/posts/123/mock?pageNo=1');
+          backendResponse(c, singleResponse);
+        });
+        service.url = 'v3/posts/:id';
+        service.update({ text: 'ghijkl' }, { id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
           .subscribe();
       });
     });
