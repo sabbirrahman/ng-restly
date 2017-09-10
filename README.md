@@ -1,28 +1,199 @@
-# NgResource
+# ng-resource
+>Resource (REST) service for Angular 2+.
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.3.2.
+Did you miss the ngResource service from angular1.x in angular2+? Then you have come to the right place. 
 
-## Development server
+## Installation
+`npm install --save @srlib/ng-resource`
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## How To
 
-## Code scaffolding
+1. Import ResourceModule into you app's root component.
+```
+import { ResourceModule } from '@srlib/ng-resource';
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+@NgModule({
+  bootstrap: [ App ],
+  imports: [ ResourceModule ]
+})
+export class AppModule {}
+```
 
-## Build
+2. Create a service and extend it from ResourceService
+```
+import { Http } from '@angular/http';
+import { Injectable } from '@angular/core';
+import { ResourceService } from '@srlib/ng-resource';
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+@Injectable()
+export class PostService extends ResourceService {
+  constructor(protected http: Http) {
+    this.url = 'http://api.example.com/posts/:id';
+    super(http);
+  }
+}
+```
 
-## Running unit tests
+3. Inject your service wherever you would like to take the benefits of ng-resource
+```
+import { PostService } from './post.service';
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+export class PostComponent implements OnInit {
+  constructor(private postService: PostService) {}
+  post: any; // Best Practice: Create and use a Interface as type
+  ngOnInit() {
+    this.postService
+        .get({ id: 123 })
+        .subscribe(post => this.post = post);
+  }
+}
+```
 
-## Running end-to-end tests
+## Documentation
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+### Properties
 
-## Further help
+#### `url: string`  
+Sets the baseUrl for the service  
+Example:
+```
+this.url = 'http://api.example.com/posts/:id';
+// or for nested Resource
+this.url = 'http://api.example.com/posts/:id/comments/:commentId';
+```
+Here `:id` and `:commentId` is the name of your url parameters which will be used later (See Bellow).
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+#### `resourceConfig: ResourceConfigInterface`  
+Configuration object for your resource service  
+ResourceConfigInterface:  
+```
+interface ResourceConfigInterface {
+  requestOptions?: RequestOptions;
+  auth?: boolean; // Default: false;
+  tokenPropertyName?: string; // Default: 'accessToken';
+  params?: any;
+  urlSuffix?: string;
+}
+```
+* `requestOptions`: Same as [RequestOptions](https://angular.io/api/http/RequestOptions) from '@angular/http'  
+* `auth`: When set to `true` x-access-token header will be sent with every request
+* `tokenPropertyName`: This property will be used to look for jwt token in your localStorage
+* `params`: An object of key/value pair to be append as query string after the url
+* `urlSuffix`: If you need to add a suffix to the url
+
+### Resource Methods
+
+#### `query(obj?: any, config?: ResourceConfigInterface): Observable<any>;`  
+query method gets a list of data from your REST API using `GET` method.  
+Example:
+```
+// For baseUrl: `/posts/:id`;
+this.postService.query().subscribe(post => this.post = post);
+// Will get a list of posts
+```
+```
+// For baseUrl: `/posts/:id/comments/commentId`;
+this.commentService.query({ id: 123 }).subscribe(cmnt => this.comments = cmnt);
+// Will get a list of comments for the post with id 123
+```
+
+#### `get(obj: any, config?: ResourceConfigInterface): Observable<any>;`  
+get method gets a single data from your REST API using `GET` method.  
+Example:
+```
+// For baseUrl: `/posts/:id`;
+this.postService.get({ id: 123 }).subscribe(post => this.post = post);
+// Will get the post with id 123
+```
+```
+// For baseUrl: `/posts/:id/comments/commentId`;
+this.commentService.get({ id: 123, commentId: 4 }).subscribe(cmnt => this.comments = cmnt);
+// Will get the comment with id 4 of the post with id 123
+```
+
+#### `save(data: any, obj?: any, config?: ResourceConfigInterface): Observable<any>;`  
+save method sends data to your REST API using `POST` method.  
+Example:
+```
+// For baseUrl: `/posts/:id`;
+let data = { title: 'New Phone', text: 'lorem imsum' };
+this.postService.save(data).subscribe();
+// Will create a new post with the data
+```
+```
+// For baseUrl: `/posts/:id/comments/commentId`;
+let data = { name: 'John Doe', msg: 'lorem imsum' };
+this.commentService.save(data, { id: 123 }).subscribe();
+// Will create a new comment for the post with id 123
+```
+
+
+#### `update(data: any, obj: any, config?: ResourceConfigInterface): Observable<any>;`  
+update method sends data to your REST API using `PUT` method.  
+Example:
+```
+// For baseUrl: `/posts/:id`;
+let data = { title: 'New iPhone', text: 'dolor sit' };
+this.postService.update(data, { id: 123 }).subscribe();
+// Will update the post with id 123 with updated data
+```
+```
+// For baseUrl: `/posts/:id/comments/commentId`;
+let data = { name: 'Jane Doe', msg: 'peep peep' };
+this.commentService.save(data, { id: 123, commentId: 4 }).subscribe();
+// Will update the comment with id 4 for the post with id 123 with updated data
+```
+
+#### `delete(obj: any, config?: ResourceConfigInterface): Observable<any>;`  
+delete method deletes data usign your REST API using `DELETE` method.  
+Example:
+```
+// For baseUrl: `/posts/:id`;
+this.postService.delete({ id: 123 }).subscribe();
+// Will delete the post with id 123
+```
+```
+// For baseUrl: `/posts/:id/comments/commentId`;
+this.commentService.delete({ id: 123, commentId: 4 }).subscribe();
+// Will delete the comment with id 4 from the post with id 123
+```
+
+### Bonus Methods
+
+#### `search(config?: ResourceConfigInterface): Observable<any>;`  
+search method append `/search` to your baseUrl and get search result from your REST API using `GET` method.  
+Example: For baseUrl: `/posts/:id`;
+```
+const reqOpts: ResourceConfigInterface = {
+  params: {
+    category: 'electronics',
+    keywords: ['phone', 'tablet', 'laptop']
+  }
+}
+this.postService.search().subscribe(); 
+```
+Will send a `GET` request to `/posts/search?category=electronics&keywords=phone,tablet,laptop`
+
+#### `count(config?: ResourceConfigInterface): Observable<any>;`  
+count method append `/count` to your baseUrl and get data count from your REST API using `GET` method.  
+Example: For baseUrl: `/posts/:id`;
+```
+this.postService.count().subscribe(); 
+```
+Will send a `GET` request to `/posts/count`
+
+## Global Config
+
+You can set `ResourceConfig` globally using `BaseResourceConfig`. Just import and edit the `BaseResourceConfig` in your root component.
+```
+import { BaseResourceConfig } from '@srlib/ng-resource';
+
+BaseResourceConfig.auth = true;
+BaseResourceConfig.tokenPropertyName = 'token';
+```
+
+## Development & Contribution
+
+Run `npm run test` to execute the unit tests via [Karma](https://karma-runner.github.io). This will help you to run and debug your code if you wish to contribute to the development of this library.
+
+Enjoy 😃
