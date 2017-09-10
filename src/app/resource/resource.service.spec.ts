@@ -106,11 +106,39 @@ describe('ResourceService', () => {
           backendResponse(c, arrResponse);
         });
         service.url = 'v3/posts/:id/comments/:commentId';
-        service.query({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} }).subscribe((res) => {
-          expect(res.length).toBe(2);
-          expect(res[0].id).toBe(123);
-          expect(res[1].text).toBe('def');
+        service.query({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
+          .subscribe((res) => {
+            expect(res.length).toBe(2);
+            expect(res[0].id).toBe(123);
+            expect(res[1].text).toBe('def');
+          });
+      });
+    });
+
+    describe('get method which should return a single object', () => {
+      it('for basic query request', () => {
+        backend.connections.subscribe(c => {
+          expect(c.request.url).toBe('v3/posts/123');
+          backendResponse(c, singleResponse);
         });
+        service.url = 'v3/posts/:id';
+        service.get({ id: 123 }).subscribe((res) => {
+          expect(res.id).toBe(123);
+          expect(res.text).toBe('abc');
+        });
+      });
+
+      it('for request with query parameters and url suffix', () => {
+        backend.connections.subscribe(c => {
+          expect(c.request.url).toBe('v3/posts/123/mock?pageNo=1');
+          backendResponse(c, singleResponse);
+        });
+        service.url = 'v3/posts/:id';
+        service.get({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
+          .subscribe((res) => {
+            expect(res.id).toBe(123);
+            expect(res.text).toBe('abc');
+          });
       });
     });
 

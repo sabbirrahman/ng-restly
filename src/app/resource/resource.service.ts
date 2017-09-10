@@ -38,15 +38,14 @@ export class ResourceService implements ResourceInterface {
   }
 
   query(ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
-    let url = this.makeUrl(ids);
-    url += config.hasOwnProperty('urlSuffix') ? config.urlSuffix : '';
-    url += config.hasOwnProperty('params') ? this.makeQueryString(config['params']) : '';
     const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
-    return this.http.get(url, reqOpts)
+    return this.http.get(this.getUrl(ids, config), reqOpts)
                     .map((res: Response) => res.json());
   }
 
-  get() {}
+  get(ids: any, config: ResourceConfigInterface = {}): Observable<any> {
+    return this.query(ids, config);
+  }
 
   save() {}
 
@@ -82,6 +81,13 @@ export class ResourceService implements ResourceInterface {
         : prev;
       }, '?')
       .replace('?&', '?');
+  }
+
+  private getUrl(ids, config) {
+    let url = this.makeUrl(ids);
+    url += config.hasOwnProperty('urlSuffix') ? config.urlSuffix : '';
+    url += config.hasOwnProperty('params') ? this.makeQueryString(config['params']) : '';
+    return url;
   }
 
 }

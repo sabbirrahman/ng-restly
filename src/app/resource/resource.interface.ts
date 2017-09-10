@@ -13,8 +13,7 @@ export interface ResourceConfigInterface {
 
 export interface ResourceInterface {
   query(obj: any, config: ResourceConfigInterface): Observable<any>;
-  get();
-  // get(obj: any, config: ResourceConfigInterface): Observable<any>;
+  get(obj: any, config: ResourceConfigInterface): Observable<any>;
   save();
   update();
   delete();
