@@ -14,7 +14,7 @@ export interface ResourceConfigInterface {
 export interface ResourceInterface {
   query(obj: any, config: ResourceConfigInterface): Observable<any>;
   get(obj: any, config: ResourceConfigInterface): Observable<any>;
-  save();
+  save(data: any, obj: any, config: ResourceConfigInterface): Observable<any>;
   update();
   delete();
 }

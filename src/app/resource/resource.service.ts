@@ -47,7 +47,10 @@ export class ResourceService implements ResourceInterface {
     return this.query(ids, config);
   }
 
-  save() {}
+  save(data: any, ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
+    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
+    return this.http.post(this.getUrl(ids, config), JSON.stringify(data), reqOpts);
+  }
 
   update() {}
 
