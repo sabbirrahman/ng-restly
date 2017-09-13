@@ -1,7 +1,12 @@
+
 # ng-resource
 >Resource (REST) service for Angular 2+.
 
 Did you miss the ngResource service from angular1.x in angular2+? Then you have come to the right place. 
+
+[![Build Status](https://travis-ci.org/sabbirrahman/ng-resource.svg?branch=master)](https://travis-ci.org/sabbirrahman/ng-resource)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/sabbirrahman/ng-resource/blob/master/LICENSE)
+[![NPM version](https://badge.fury.io/js/%40srlib%2Fng-resource.svg)](https://www.npmjs.com/package/@srlib/ng-resource)
 
 ## Installation
 `npm install --save @srlib/ng-resource`
@@ -49,7 +54,7 @@ export class PostComponent implements OnInit {
     * [save](#savedata-any-obj-any-config-resourceconfiginterface-observableany)
     * [update](#updatedata-any-obj-any-config-resourceconfiginterface-observableany)
     * [delete](#deleteobj-any-config-resourceconfiginterface-observableany)
-  * [Bonus Methods](#bonus-methods)
+  * [Util Methods](#util-methods)
     * [search](#searchconfig-resourceconfiginterface-observableany)
     * [count](#countconfig-resourceconfiginterface-observableany)
 * [Custom Methods](#custom-methods)
@@ -169,8 +174,21 @@ this.commentService.delete({ id: 123, commentId: 4 }).subscribe();
 // Will delete the comment with id 4 from the post with id 123
 ```
 
-### Bonus Methods
+### Util Methods
 ---
+
+#### `authenticate(): void`
+Authorize the service to send x-access-token header with every request. This method is needed for the case in which BaseResourceService is set to false. For some reason you may need to authorize a single service. In that case this method may come in handy. Just call `this.authenticate();` in your service's constructor.
+```
+@Injectable()
+export class PostService extends ResourceService {
+  constructor(protected http: Http) {
+    this.url = 'http://api.example.com/posts/:id';
+    super(http);
+    this.authenticate();
+  }
+}
+```
 
 #### `search(config?: ResourceConfigInterface): Observable<any>;`  
 search method append `/search` to your baseUrl and get search result from your REST API using `GET` method.  

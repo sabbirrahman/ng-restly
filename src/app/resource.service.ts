@@ -34,7 +34,7 @@ export class ResourceService implements ResourceServiceInterface {
   set url(url: string) { this.baseUrl = url; }
   get url() { return this.baseUrl; }
 
-  authenticate() {
+  authenticate(): void {
     const token = localStorage.getItem(this.resourceConfig.tokenPropertyName);
     if (this.resourceConfig.auth && token) {
       this.resourceConfig.requestOptions.headers.set('x-access-token', token);
