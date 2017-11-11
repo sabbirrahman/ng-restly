@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('ng-resource App', () => {
+describe('ng-restly App', () => {
   let page: AppPage;
 
   beforeEach(() => {
