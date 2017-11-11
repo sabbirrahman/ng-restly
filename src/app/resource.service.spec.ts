@@ -59,29 +59,6 @@ describe('ResourceService', () => {
     localStorage.removeItem('accessToken');
   });
 
-  it('should take a base url and create REST method specific url', () => {
-    service.url = 'v3/api/posts';
-    expect(service.makeUrl({})).toBe('v3/api/posts');
-    service.url = 'v3/api/posts/:id';
-    expect(service.makeUrl({})).toBe('v3/api/posts');
-    expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123');
-    service.url = 'v3/api/posts/:id/comments/:commentId';
-    expect(service.makeUrl({ id: 123 })).toBe('v3/api/posts/123/comments');
-    expect(service.makeUrl({ id: 123, commentId: 321 })).toBe('v3/api/posts/123/comments/321');
-  });
-
-  it('should make a query string from given object', () => {
-    const obj = {
-      limit: 10,
-      pageNumber: 1,
-      keywords: ['android', 'iOS', 'Windows'],
-      ignore: '',
-      list: []
-    };
-    const queryString = service.makeQueryString(obj);
-    expect(queryString).toBe('?limit=10&pageNumber=1&keywords=android,iOS,Windows');
-  });
-
   describe('should use the REST methods including', () => {
     describe('query method which should return an array', () => {
       it('for basic query request', () => {
@@ -90,18 +67,18 @@ describe('ResourceService', () => {
           expect(c.request.url).toBe('v3/posts');
           backendResponse(c, arrResponse);
         });
-        service.url = 'v3/posts/:id';
+        service.url = 'v3/posts';
         service.query().subscribe();
       });
 
       it('for request with query parameters and url suffix', () => {
         backend.connections.subscribe(c => {
           expect(XHR_METHODS[c.request.method]).toBe('GET');
-          expect(c.request.url).toBe('v3/posts/123/comments/mock?pageNo=1');
+          expect(c.request.url).toBe('v3/posts/123/comments/mock?pageNo=1&keywords=android&keywords=iphone');
           backendResponse(c, arrResponse);
         });
         service.url = 'v3/posts/:id/comments/:commentId';
-        service.query({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1} })
+        service.query({ id: 123 }, { urlSuffix: '/mock', params: { pageNo: 1, keywords: ['android', 'iphone'] } })
           .subscribe((res) => {
             expect(res.length).toBe(2);
             expect(res[0].id).toBe(123);

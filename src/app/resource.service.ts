@@ -42,41 +42,46 @@ export class ResourceService implements ResourceServiceInterface {
   }
 
   query(ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
-    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
-    return this.http.get(this.getUrl(ids, config), reqOpts)
-                    .map((res: Response) => res.json());
+    return this.request('GET', ids, config).map((res: Response) => res.json());
   }
 
   get(ids: any, config: ResourceConfigInterface = {}): Observable<any> {
-    return this.query(ids, config);
+    return this.request('GET', ids, config).map((res: Response) => res.json());
   }
 
   save(data: any, ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
-    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
-    return this.http.post(this.getUrl(ids, config), JSON.stringify(data), reqOpts);
+    return this.request('POST', ids, config, data);
   }
 
   update(data: any, ids: any, config: ResourceConfigInterface = {}): Observable<any> {
-    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
-    return this.http.put(this.getUrl(ids, config), JSON.stringify(data), reqOpts);
+    return this.request('PUT', ids, config, data);
   }
 
   delete(ids: any, config: ResourceConfigInterface = {}): Observable<any> {
-    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
-    return this.http.delete(this.getUrl(ids, config), reqOpts);
+    return this.request('DELETE', ids, config);
   }
 
   search(config: ResourceConfigInterface = {}): Observable<any> {
     config.urlSuffix = '/search';
-    return this.query({}, config);
+    return this.request('GET', {}, config).map((res: Response) => res.json());
   }
 
   count(config: ResourceConfigInterface = {}): Observable<any> {
     config.urlSuffix = '/count';
-    return this.query({}, config);
+    return this.request('GET', {}, config).map((res: Response) => res.json());
   }
 
-  makeUrl(obj) {
+  private request(method: string, ids: any = {}, config: ResourceConfigInterface = {}, data?: any): Observable<any> {
+    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
+    reqOpts.method = method || 'GET';
+    reqOpts.params = config['params'] || null;
+    reqOpts.body = JSON.stringify(data) || null;
+
+    const url = this.makeUrl(ids) + (config['urlSuffix'] || '');
+    return this.http.request(url, reqOpts);
+  }
+
+  private makeUrl(obj) {
     let url = this.baseUrl;
     const params = url.match(/:\w+/g);
     if (!params) { return url; }
@@ -88,28 +93,6 @@ export class ResourceService implements ResourceServiceInterface {
             url.replace('/' + param, '');
     });
 
-    return url;
-  }
-
-  makeQueryString(obj) {
-    return Object
-      .keys(obj)
-      .reduce((prev, curr) => {
-        return obj[curr] ?
-          Array.isArray(obj[curr]) && obj[curr].length > 0 ?
-            `${prev}&${encodeURIComponent(curr)}=${obj[curr].join(',')}`
-          : !Array.isArray(obj[curr]) ?
-            `${prev}&${encodeURIComponent(curr)}=${encodeURIComponent(obj[curr])}`
-          : prev
-        : prev;
-      }, '?')
-      .replace('?&', '?');
-  }
-
-  private getUrl(ids, config) {
-    let url = this.makeUrl(ids);
-    url += config.hasOwnProperty('urlSuffix') ? config.urlSuffix : '';
-    url += config.hasOwnProperty('params') ? this.makeQueryString(config['params']) : '';
     return url;
   }
 
