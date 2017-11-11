@@ -5,7 +5,7 @@ Did you miss the ngResource service from angular1.x in angular2+? Then you have 
 
 [![Build Status](https://travis-ci.org/sabbirrahman/ng-restly.svg?branch=master)](https://travis-ci.org/sabbirrahman/ng-restly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/sabbirrahman/ng-restly/blob/master/LICENSE)
-[![NPM version](https://badge.fury.io/js/%40srlib%2Fng-restly.svg)](https://www.npmjs.com/package/ng-restly)
+[![NPM version](https://badge.fury.io/js/ng-restly.svg)](https://www.npmjs.com/package/ng-restly)
 
 ## Installation
 `npm install --save ng-restly`
