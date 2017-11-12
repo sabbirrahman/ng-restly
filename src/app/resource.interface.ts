@@ -1,7 +1,18 @@
 // Imports from @angular
-import { RequestOptions } from '@angular/http';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
 // RxJS
 import { Observable } from 'rxjs/Observable';
+
+export interface RequestOptions {
+  headers?: HttpHeaders;
+  // observe?: HttpObserve;
+  params?: HttpParams;
+  reportProgress?: boolean;
+  responseType?: 'arraybuffer'|'blob'|'json'|'text';
+  withCredentials?: boolean;
+  method?: 'Get'|'Post'|'Put'|'Delete'|'Options'|'Head'|'Patch';
+  body?: any;
+}
 
 export interface ResourceConfigInterface {
   requestOptions?: RequestOptions;

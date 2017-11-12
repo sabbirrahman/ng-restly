@@ -1,19 +1,18 @@
 // Imports from @angular
-import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { HttpClient, HttpHeaders, HttpResponse, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 // RxJS
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
 // Interfaces
 import { ResourceServiceInterface, ResourceConfigInterface } from './resource.interface';
 
 export const BaseResourceConfig: ResourceConfigInterface = {
-  requestOptions: new RequestOptions({
-    headers: new Headers({
+  requestOptions: {
+    headers: new HttpHeaders({
       'content-type': 'application/json',
       'accept': 'application/json',
     })
-  }),
+  },
   auth: false,
   tokenPropertyName: 'accessToken'
 };
@@ -24,7 +23,7 @@ export class ResourceService implements ResourceServiceInterface {
   private baseUrl: string;
 
   constructor(
-    protected http: Http
+    protected http: HttpClient
   ) {
     if (BaseResourceConfig.auth) {
       this.authenticate();
@@ -37,48 +36,53 @@ export class ResourceService implements ResourceServiceInterface {
   authenticate(): void {
     const token = localStorage.getItem(this.resourceConfig.tokenPropertyName);
     if (this.resourceConfig.auth && token) {
-      this.resourceConfig.requestOptions.headers.set('x-access-token', token);
+      this.resourceConfig.requestOptions.headers = this.resourceConfig.requestOptions.headers.set('x-access-token', token);
     }
   }
 
   query(ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
-    return this.request('GET', ids, config).map((res: Response) => res.json());
+    return this.request('Get', ids, config);
   }
 
   get(ids: any, config: ResourceConfigInterface = {}): Observable<any> {
-    return this.request('GET', ids, config).map((res: Response) => res.json());
+    return this.request('Get', ids, config);
   }
 
   save(data: any, ids: any = {}, config: ResourceConfigInterface = {}): Observable<any> {
-    return this.request('POST', ids, config, data);
+    return this.request('Post', ids, config, data);
   }
 
   update(data: any, ids: any, config: ResourceConfigInterface = {}): Observable<any> {
-    return this.request('PUT', ids, config, data);
+    return this.request('Put', ids, config, data);
   }
 
   delete(ids: any, config: ResourceConfigInterface = {}): Observable<any> {
-    return this.request('DELETE', ids, config);
+    return this.request('Delete', ids, config);
   }
 
   search(config: ResourceConfigInterface = {}): Observable<any> {
     config.urlSuffix = '/search';
-    return this.request('GET', {}, config).map((res: Response) => res.json());
+    return this.request('Get', {}, config);
   }
 
   count(config: ResourceConfigInterface = {}): Observable<any> {
     config.urlSuffix = '/count';
-    return this.request('GET', {}, config).map((res: Response) => res.json());
+    return this.request('Get', {}, config);
   }
 
-  private request(method: string, ids: any = {}, config: ResourceConfigInterface = {}, data?: any): Observable<any> {
+  private request(
+    method: 'Get'|'Post'|'Put'|'Delete'|'Options'|'Head'|'Patch',
+    ids: any,
+    config: ResourceConfigInterface,
+    data?: any
+  ): Observable<any> {
     const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
-    reqOpts.method = method || 'GET';
+    reqOpts.method = method;
     reqOpts.params = config['params'] || null;
     reqOpts.body = JSON.stringify(data) || null;
 
     const url = this.makeUrl(ids) + (config['urlSuffix'] || '');
-    return this.http.request(url, reqOpts);
+    return this.http.request(reqOpts.method, url, reqOpts);
   }
 
   private makeUrl(obj) {
