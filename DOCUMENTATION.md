@@ -43,7 +43,19 @@ interface ResourceConfigInterface {
   urlSuffix?: string;
 }
 ```
-* `requestOptions`: Same as [RequestOptions](https://angular.io/api/http/RequestOptions) from '@angular/http'  
+```typescript
+interface RequestOptions {
+  headers?: HttpHeaders;
+  params?: HttpParams;
+  reportProgress?: boolean;
+  responseType?: 'arraybuffer'|'blob'|'json'|'text';
+  withCredentials?: boolean;
+  method?: 'Get'|'Post'|'Put'|'Delete'|'Options'|'Head'|'Patch';
+  body?: any;
+}
+```
+#### ResourceConfigInterface:
+* `requestOptions`: RequestOptions
 * `auth`: When set to `true` x-access-token header will be sent with every request
 * `tokenPropertyName`: This property will be used to look for jwt token in your localStorage
 * `params`: An object of key/value pair to be append as query string after the url
@@ -132,10 +144,10 @@ this.commentService.delete({ id: 123, commentId: 4 }).subscribe();
 
 #### `authenticate(): void`
 Authorize the service to send x-access-token header with every request. This method is needed for the case in which BaseResourceService is set to false. For some reason you may need to authorize a single service. In that case this method may come in handy. Just call `this.authenticate();` in your service's constructor.
-```
+```typescript
 @Injectable()
 export class PostService extends ResourceService {
-  constructor(protected http: Http) {
+  constructor(protected http: HttpClient) {
     this.url = 'http://api.example.com/posts/:id';
     super(http);
     this.authenticate();
@@ -170,7 +182,7 @@ You can define your own custom methods in your service class. Here is an example
 ```typescript
 @Injectable()
 export class PostService extends ResourceService {
-  constructor(protected http: Http) {
+  constructor(protected http: HttpClient) {
     this.url = 'http://api.example.com/posts/:id';
     super(http);
   }

@@ -14,13 +14,13 @@ Did you miss the ngResource service from angular1.x in angular2+? Then you have 
 
 1. Create a service and extend it from ResourceService
 ```typescript
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ResourceService } from 'ng-restly';
 
 @Injectable()
 export class PostService extends ResourceService {
-  constructor(protected http: Http) {
+  constructor(protected http: HttpClient) {
     this.url = 'http://api.example.com/posts/:id';
     super(http);
   }
@@ -45,6 +45,14 @@ export class PostComponent implements OnInit {
 ## Documentation
 
 See full documentation [here](https://github.com/sabbirrahman/ng-restly/blob/master/DOCUMENTATION.md).
+
+## Deprecated @angular/http module Support
+
+ng-restly v1.0.0 supports the deprecated and soon to be removed @angular/http module. If you are using version below 4.4.0 of angular you have to install v1.0.0 of ng-restly.
+
+`npm install --save ng-restly@1.0.0`
+
+See full documentation for v1.0.0 [here](https://github.com/sabbirrahman/ng-restly/blob/1.0.0/DOCUMENTATION.md).
 
 ## Development & Contribution
 
