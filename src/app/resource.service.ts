@@ -73,10 +73,10 @@ export class ResourceService implements ResourceServiceInterface {
   private request(
     method: 'Get'|'Post'|'Put'|'Delete'|'Options'|'Head'|'Patch',
     ids: any,
-    config: ResourceConfigInterface,
+    config: ResourceConfigInterface = {},
     data?: any
   ): Observable<any> {
-    const reqOpts = config.requestOptions || this.resourceConfig.requestOptions;
+    const reqOpts = Object.assign({}, this.resourceConfig.requestOptions, config.requestOptions);
     reqOpts.method = method;
     reqOpts.params = config['params'] || null;
     reqOpts.body = JSON.stringify(data) || null;
