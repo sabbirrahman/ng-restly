@@ -1,6 +1,6 @@
 {
   "name": "ng-restly",
-  "version": "2.0.1",
+  "version": "2.0.4",
   "description": "Resource (REST) Service for Angular (2+)",
   "keywords": [
     "angular",

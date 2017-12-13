@@ -76,6 +76,15 @@ export class ResourceService implements ResourceServiceInterface {
     config: ResourceConfigInterface = {},
     data?: any
   ): Observable<any> {
+    const token = localStorage.getItem(this.resourceConfig.tokenPropertyName);
+    if (!config.requestOptions) { config.requestOptions = {}; }
+    if (this.resourceConfig.auth && token) {
+      config.requestOptions.headers = new HttpHeaders({
+        'content-type': 'application/json',
+        'accept': 'application/json',
+        'x-access-token': token
+      });
+    }
     const reqOpts = Object.assign({}, this.resourceConfig.requestOptions, config.requestOptions);
     reqOpts.method = method;
     reqOpts.params = config['params'] || null;
